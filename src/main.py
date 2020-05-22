@@ -43,6 +43,7 @@ def eq_builder(a: np.array, var='s'):
 def analysis(rh:Robinhood, symbol:str, capital:float, spt:int, window_minutes:int, interval:int):
     t = Trader(logger=logger, capital=capital, symbol=symbol, spt=spt)
     a = Analyzer(logger=logger, rh=rh)
+    logger.debug('start trading...')
     a.spline_fit(t, symbol=symbol, window_minutes=window_minutes, interval=interval)
 
 # Log in to app (will prompt for two-factor)
@@ -52,7 +53,7 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--symbol", help="ticker symbol of the stock", type=str)
-    parser.add_argument("-t", "--spt", help="how many stocks to buy/sell per transaction", type=int)
+    parser.add_argument("-t", "--spt", help="how many stocks to buy/sell per transaction. Defaults to 1", type=int, default=1)
     parser.add_argument("-c", "--capital", help="starting capital", type=int)
     parser.add_argument("-w", "--window", help="moving window in minutes", type=int)
     parser.add_argument("-i", "--interval", help="datapoint interval in seconds", type=int, default=1)
@@ -72,8 +73,6 @@ if __name__ == '__main__':
         rh = Robinhood(username="sangchoi93@gmail.com", password=getpass.getpass())
         rh.login()
         dump_session(rh) # so you don't have to do mfa again
-
-
 
     logging.info('symbol:{} window:{} capital:{} spt:{} interval:{}'.format(
         symbol, window, capital, spt, interval))

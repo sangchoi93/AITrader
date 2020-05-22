@@ -55,7 +55,6 @@ class Analyzer:
                             if trend == 'down':                     
                                 self.logger.debug('negative inflection, trigger sell at ' + str(cur_price))
                                 t.sellall(cur_price)
-                                t.results()
                             else:
                                 self.logger.debug('negative inflection, setting down trend')
                                 trend = 'down'

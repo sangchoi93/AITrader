@@ -61,7 +61,9 @@ class Trader:
                 price,
                 TRANSACTION_TYPE.BUY,
                 amount)]
+
             self.logger.info('buy {} at {}'.format(self.spt, price))
+            self.results()
 
     def sell(self, price:float, amount:int = None):
         if not(amount):
@@ -70,7 +72,11 @@ class Trader:
         self._update_price(price)
 
         if self.stocks - amount < 0:
-            self.logger.info('unable to sell')
+            if self.stocks != 0:
+                self.logger.info('unable to sell {}. Selling the remainder...'.format(amount))
+                self.sell(price, self.stocks)
+            else:
+                self.logger.info('unable to sell. Don\'t have any to sell')
         else:
             self.num_sell += 1
             self.capital += price * amount
@@ -82,29 +88,37 @@ class Trader:
                 TRANSACTION_TYPE.SELL,
                 amount)]
             self.logger.info('sell {} at {}'.format(self.spt, price))
+            self.results()
+
 
     def store_log(self, filepath):
         df = pd.DataFrame(self.transaction_data).reset_index(drop=True)
         df.to_csv(filepath)
 
     def results(self):
-        print('total transactions today: {}'.format(self.num_buy + self.num_sell))
-        print('total bullet left: {}'.format(self.capital))
-        print('total stocks left: {}'.format(self.stocks))
-        print('stock asset value: {}'.format(self.stocks * self.last_price))
-        print('total asset value: {}'.format(self.stocks * self.last_price + self.capital))
+        print('Transactions:{} '.format(self.num_buy + self.num_sell), end='')
+        print('Capital:{} '.format(self.capital), end='')
+        print('Stocks: {} '.format(self.stocks), end='')
+        print('Total value: {} '.format(self.stocks * self.last_price + self.capital), end='')
+
 
     def sellall(self, price):
-        self.num_sell += 1
-        self.capital += price * self.stocks
-        self.transaction_data += [TransactionData(
-            datetime.datetime.now(),
-            self.symbol,
-            price,
-            TRANSACTION_TYPE.SELL,
-            self.stocks)]
-        self.logger.info('sell all {} at {}'.format(self.stocks, price))
-        self.stocks = 0
+        self._update_price(price)
+
+        if self.stocks == 0:
+            self.logger.debug('nothing to sell')
+        else:
+            self.num_sell += 1
+            self.capital += price * self.stocks
+            self.transaction_data += [TransactionData(
+                datetime.datetime.now(),
+                self.symbol,
+                price,
+                TRANSACTION_TYPE.SELL,
+                self.stocks)]
+            self.logger.info('sell all {} at {}'.format(self.stocks, price))
+            self.stocks = 0
+            self.results()
 
 
 if __name__ == '__main__':

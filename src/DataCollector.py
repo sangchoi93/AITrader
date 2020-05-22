@@ -71,13 +71,13 @@ if __name__ == '__main__':
     SLEEP_TIME = args.interval
     # Log in to app (will prompt for two-factor)
 
-    try:
-        rh = load_session()
+    # try:
+    #     rh = load_session()
 
-    except InvalidCacheFile:
-        rh = Robinhood(username="sangchoi93@gmail.com", password=getpass.getpass())
-        rh.login()
-        dump_session(rh) # so you don't have to do mfa again
+    # except InvalidCacheFile:
+    rh = Robinhood(username="sangchoi93@gmail.com", password=getpass.getpass())
+    rh.login()
+    dump_session(rh) # so you don't have to do mfa again
     
     dc = DataCollector(logger, rh)
     while True:
